@@ -153,6 +153,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 972751940}
+  - {fileID: 1827235161}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -169,7 +170,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _enemyPrefab: {fileID: 6931240517602121938, guid: 096d86c1b24a4854aba439c487199713, type: 3}
+  _powerups:
+  - {fileID: 8369771424636927652, guid: c9ff5c03fe271b448b8630722fa04c11, type: 3}
+  - {fileID: 2244486223600273265, guid: facc2616466389d46a5eeffcd7e691b9, type: 3}
   _enemyContainer: {fileID: 972751939}
+  _powerUpContainer: {fileID: 1827235160}
 --- !u!1 &972751939
 GameObject:
   m_ObjectHideFlags: 0
@@ -296,7 +301,7 @@ GameObject:
   - component: {fileID: 1160959561}
   - component: {fileID: 1160959560}
   m_Layer: 0
-  m_Name: SpaceBG_Overlay
+  m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -362,8 +367,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1160959559}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 0.9939, z: 0}
-  m_LocalScale: {x: 1.0712663, y: 1.0692627, z: 1}
+  m_LocalPosition: {x: -0, y: 1, z: 0}
+  m_LocalScale: {x: 1.08, y: 1.07, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -379,14 +384,6 @@ PrefabInstance:
     - target: {fileID: 208357297760953843, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 208357297760953845, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: m_SortingLayer
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 208357297760953845, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: m_SortingLayerID
-      value: -1946597717
       objectReference: {fileID: 0}
     - target: {fileID: 208357297760953847, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
       propertyPath: m_RootOrder
@@ -434,6 +431,37 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
+--- !u!1 &1827235160
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1827235161}
+  m_Layer: 0
+  m_Name: PowerUp_Container
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1827235161
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1827235160}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 125725456}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1875325907
 GameObject:
   m_ObjectHideFlags: 0

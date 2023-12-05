@@ -5,22 +5,19 @@ using UnityEngine;
 public class SpawnManager : MonoSingleton<SpawnManager>
 {    
     [SerializeField] private GameObject _enemyPrefab;
-    [SerializeField] private GameObject _enemyContainer;
-    private WaitForSeconds _enemySpawnDelay;
-    private Vector3 _spawnPosition;
+    [SerializeField] private GameObject[] _powerups;
+    [SerializeField] private GameObject _enemyContainer, _powerUpContainer;
+    private WaitForSeconds _enemySpawnDelay = new(5f);
+    private Vector3 _enemySpawnPosition, _powerUpSpawnPosition;
     private float _maxXPosition = 9.2f;
     private float _minXPosition = -9.2f;
+    private float _spawnPositionY = 7.35f;
     private bool _stopSpawning = false;
 
-    void Start()
+    private void Start()
     {
-        _enemySpawnDelay = new WaitForSeconds(5f);
         StartCoroutine(EnemySpawnRoutine());
-    }
-
-    void Update()
-    {
-        
+        StartCoroutine(SpawnPowerUpRoutine());
     }
 
     public void StopSpawning()
@@ -28,13 +25,26 @@ public class SpawnManager : MonoSingleton<SpawnManager>
         _stopSpawning = true;
     }
 
-    IEnumerator EnemySpawnRoutine()
+    private IEnumerator EnemySpawnRoutine()
     {
         while (!_stopSpawning)
         {
-            _spawnPosition.Set(Random.Range(_minXPosition, _maxXPosition), 7.35f, 0f);
-            Instantiate(_enemyPrefab, _spawnPosition, Quaternion.identity, _enemyContainer.transform);
+            float randomPositionX = Random.Range(_minXPosition, _maxXPosition);
+            _enemySpawnPosition.Set(randomPositionX, _spawnPositionY, 0f);
+            Instantiate(_enemyPrefab, _enemySpawnPosition, Quaternion.identity, _enemyContainer.transform);
             yield return _enemySpawnDelay;
+        }
+    }
+
+    private IEnumerator SpawnPowerUpRoutine()
+    {
+        while (!_stopSpawning)
+        {
+            float randomPositionX = Random.Range(_minXPosition, _maxXPosition);
+            _powerUpSpawnPosition.Set(randomPositionX, _spawnPositionY, 0f);
+            int randomPowerUP = Random.Range(0, _powerups.Length);
+            Instantiate(_powerups[randomPowerUP], _powerUpSpawnPosition, Quaternion.identity, _powerUpContainer.transform);
+            yield return new WaitForSeconds(Random.Range(3, 8));
         }
     }
 }

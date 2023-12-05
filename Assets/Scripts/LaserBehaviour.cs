@@ -7,11 +7,19 @@ public class LaserBehaviour : MonoBehaviour
     [SerializeField] private float _laserSpeed = 8f;
     private void Start()
     {
-        Destroy(this.gameObject, 2f);
+        if(transform.parent != null)
+        {
+            Destroy(transform.parent.gameObject, 2f);
+            Destroy(gameObject, 2f);
+        }
+        else
+        {
+            Destroy(gameObject, 2f);
+        }
     }
 
     private void Update()
     {
-        transform.Translate(Vector3.up * _laserSpeed * Time.deltaTime);
+        transform.Translate(_laserSpeed * Time.deltaTime * Vector3.up);
     }
 }

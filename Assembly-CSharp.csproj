@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\EnemyBehaviour.cs" />
     <Compile Include="Assets\Scripts\SpawnManager.cs" />
+    <Compile Include="Assets\Scripts\PowerUp.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\LaserBehaviour.cs" />
     <Compile Include="Assets\Scripts\MonoSingleton.cs" />

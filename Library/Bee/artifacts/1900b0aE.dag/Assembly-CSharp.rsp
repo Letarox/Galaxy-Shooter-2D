@@ -363,6 +363,7 @@
 "Assets/Scripts/LaserBehaviour.cs"
 "Assets/Scripts/MonoSingleton.cs"
 "Assets/Scripts/Player.cs"
+"Assets/Scripts/PowerUp.cs"
 "Assets/Scripts/SpawnManager.cs"
 -langversion:9.0
 

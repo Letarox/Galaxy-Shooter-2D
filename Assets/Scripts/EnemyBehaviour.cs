@@ -5,7 +5,7 @@ using UnityEngine;
 public class EnemyBehaviour : MonoBehaviour
 {
     [SerializeField] private float _enemySpeed = 4f;
-    [SerializeField] private int _health = 3;
+    [SerializeField] private int _health = 1;
     private Vector3 _newPosition = new();
     private float _maxYPosition = 7.35f;
     private float _minYPosition = -5.5f;
@@ -24,7 +24,7 @@ public class EnemyBehaviour : MonoBehaviour
 
     private void CalculateMovement()
     {
-        transform.Translate(Vector3.down * _enemySpeed * Time.deltaTime);
+        transform.Translate(_enemySpeed * Time.deltaTime * Vector3.down);
 
         if (transform.position.y < _minYPosition)
         {
@@ -43,10 +43,10 @@ public class EnemyBehaviour : MonoBehaviour
         }
         else if (other.CompareTag("Player"))
         {            
-            Player p = other.GetComponent<Player>();
-            if (p != null)
-                p.TakeDamage();
-            Destroy(this.gameObject);
+            Player player = other.GetComponent<Player>();
+            if (player != null)
+                player.TakeDamage();
+            Destroy(gameObject);
         }
     }
 
@@ -55,7 +55,7 @@ public class EnemyBehaviour : MonoBehaviour
         _health--;
         if (_health <= 0)
         {
-            Destroy(this.gameObject);
+            Destroy(gameObject);
         }
     }
 }
