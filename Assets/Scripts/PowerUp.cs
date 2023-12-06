@@ -4,16 +4,19 @@ using UnityEngine;
 
 public class PowerUp : MonoBehaviour
 {   
-    [SerializeField] private float _powerUpSpeed = 3f;    
-    [SerializeField] private float _duration = 5f;
-    [SerializeField] private int _powerUpID; //0 TripleShot, 1 Speed, 2 Shield
-    private float _minYPosition = -6f;
-    void Start()
+    private enum PowerUpType
     {
-        
+        TripleShot,
+        Speed,
+        Shield
     }
 
-    void Update()
+    [SerializeField] private float _powerUpSpeed = 3f;    
+    [SerializeField] private float _duration = 5f;
+    [SerializeField] private PowerUpType _type;
+    private float _minYPosition = -6f;
+
+    private void Update()
     {
         MovePowerUp();
     }
@@ -32,23 +35,27 @@ public class PowerUp : MonoBehaviour
             Player player = other.GetComponent<Player>();
             if (player != null)
             {
-                switch (_powerUpID)
-                {
-                    case 0:
-                        player.ActivateTripleShotPowerUp(_duration);
-                        break;
-                    case 1:
-                        player.ActivateSpeedPowerUp(_duration);
-                        break;
-                    case 2:
-                        Debug.Log("Shield Collected.");
-                        break;
-                    default:
-                        Debug.Log("Default value.");
-                        break;
-                }
+                ActivatePowerUp(player);
             }
             Destroy(gameObject);
+        }
+    }
+
+    private void ActivatePowerUp(Player player)
+    {
+        switch (_type)
+        {
+            case PowerUpType.TripleShot:
+                player.ActivateTripleShotPowerUp(_duration);
+                break;
+            case PowerUpType.Speed:
+                player.ActivateSpeedPowerUp(_duration);
+                break;
+            case PowerUpType.Shield:
+                player.ActivateShieldPowerUp();
+                break;
+            default:
+                break;
         }
     }
 }

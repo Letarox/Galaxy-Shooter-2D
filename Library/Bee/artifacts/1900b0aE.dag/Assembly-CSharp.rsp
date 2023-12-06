@@ -360,11 +360,14 @@
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEngine.UI.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEngine.XR.LegacyInputHelpers.ref.dll"
 "Assets/Scripts/EnemyBehaviour.cs"
+"Assets/Scripts/GameManager.cs"
 "Assets/Scripts/LaserBehaviour.cs"
+"Assets/Scripts/Main_Menu/MainMenu.cs"
 "Assets/Scripts/MonoSingleton.cs"
 "Assets/Scripts/Player.cs"
 "Assets/Scripts/PowerUp.cs"
 "Assets/Scripts/SpawnManager.cs"
+"Assets/Scripts/UIManager.cs"
 -langversion:9.0
 
 /deterministic

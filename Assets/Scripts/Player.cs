@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float _playerSpeed = 4f;
     [SerializeField] private float _powerUpSpeedMultiplier = 1f;
     [SerializeField] private GameObject _laserPrefab, _tripleShotPrefab;
+    [SerializeField] private GameObject _shield;
     [SerializeField] private int _playerLives = 3;
     private Vector3 _direction, _limitY, _teleportPositionX, _laserOffset;
     private float _minYPosition = -3.85f;
@@ -18,6 +19,9 @@ public class Player : MonoBehaviour
     private float _laserOffsetY = 1.05f;
     [SerializeField] private float _fireDelay = 0.25f;
     [SerializeField] private bool _isTripleShotOn = false;
+    [SerializeField] private bool _isShieldOn = false;
+    private Coroutine _tripleShotRoutine, _speedRoutine;
+    private int _score;
 
     private void Start()
     {
@@ -101,6 +105,7 @@ public class Player : MonoBehaviour
         _isTripleShotOn = true;
         yield return new WaitForSeconds(duration);
         _isTripleShotOn = false;
+        _tripleShotRoutine = null;
     }
 
     private IEnumerator EnableSpeedRoutine(float duration)
@@ -108,21 +113,53 @@ public class Player : MonoBehaviour
         _powerUpSpeedMultiplier = 2.5f;
         yield return new WaitForSeconds(duration);
         _powerUpSpeedMultiplier = 1f;
+        _speedRoutine = null;
+    }
+
+    private void ActivateDeactivateShield(bool activate)
+    {
+        _isShieldOn = activate;
+        _shield.SetActive(activate);
     }
 
     public void ActivateTripleShotPowerUp(float duration)
     {
-        StartCoroutine(EnableTripleShotRoutine(duration));
+        if (_tripleShotRoutine != null)
+            StopCoroutine(_tripleShotRoutine);
+
+        _tripleShotRoutine = StartCoroutine(EnableTripleShotRoutine(duration));
     }
 
     public void ActivateSpeedPowerUp(float duration)
     {
-        StartCoroutine(EnableSpeedRoutine(duration));
+        if (_speedRoutine != null)
+            StopCoroutine(_speedRoutine);
+
+        _speedRoutine = StartCoroutine(EnableSpeedRoutine(duration));
+    }
+
+    public void ActivateShieldPowerUp()
+    {
+        ActivateDeactivateShield(true);
+    }
+
+    public void AddScorePoints(int value)
+    {
+        _score += value;
+        UIManager.Instance.UpdateScoreText(_score);
     }
 
     public void TakeDamage()
     {
+        if (_isShieldOn)
+        {
+            ActivateDeactivateShield(false);
+            return;
+        }
+
         _playerLives--;
+        UIManager.Instance.UpdateLivesDisplay(_playerLives);
+
         if (_playerLives <= 0)
         {
             SpawnManager.Instance.StopSpawning();

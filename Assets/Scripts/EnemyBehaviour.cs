@@ -11,10 +11,13 @@ public class EnemyBehaviour : MonoBehaviour
     private float _minYPosition = -5.5f;
     private float _maxXPosition = 9.2f;
     private float _minXPosition = -9.2f;
+    private Player _player;
 
     private void Start()
     {
-        
+        _player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        if (_player == null)
+            Debug.LogError("Player is NULL on " + gameObject.name);
     }
 
     private void Update()
@@ -25,7 +28,11 @@ public class EnemyBehaviour : MonoBehaviour
     private void CalculateMovement()
     {
         transform.Translate(_enemySpeed * Time.deltaTime * Vector3.down);
+        TeleportNewPosition();
+    }
 
+    private void TeleportNewPosition()
+    {
         if (transform.position.y < _minYPosition)
         {
             float randomXPosition = Random.Range(_minXPosition, _maxXPosition);
@@ -38,8 +45,10 @@ public class EnemyBehaviour : MonoBehaviour
     {
         if (other.CompareTag("PlayerLaser"))
         {
-            Destroy(other.gameObject);
-            TakeDamage();            
+            Destroy(other.gameObject);  
+            if(_player != null)
+                _player.AddScorePoints(Random.Range(5, 13));
+            TakeDamage();
         }
         else if (other.CompareTag("Player"))
         {            

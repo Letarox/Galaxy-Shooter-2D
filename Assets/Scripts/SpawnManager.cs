@@ -12,7 +12,7 @@ public class SpawnManager : MonoSingleton<SpawnManager>
     private float _maxXPosition = 9.2f;
     private float _minXPosition = -9.2f;
     private float _spawnPositionY = 7.35f;
-    private bool _stopSpawning = false;
+    private bool _isPlayerAlive = false;
 
     private void Start()
     {
@@ -22,12 +22,12 @@ public class SpawnManager : MonoSingleton<SpawnManager>
 
     public void StopSpawning()
     {
-        _stopSpawning = true;
+        _isPlayerAlive = true;
     }
 
     private IEnumerator EnemySpawnRoutine()
     {
-        while (!_stopSpawning)
+        while (!_isPlayerAlive)
         {
             float randomPositionX = Random.Range(_minXPosition, _maxXPosition);
             _enemySpawnPosition.Set(randomPositionX, _spawnPositionY, 0f);
@@ -38,7 +38,7 @@ public class SpawnManager : MonoSingleton<SpawnManager>
 
     private IEnumerator SpawnPowerUpRoutine()
     {
-        while (!_stopSpawning)
+        while (!_isPlayerAlive)
         {
             float randomPositionX = Random.Range(_minXPosition, _maxXPosition);
             _powerUpSpawnPosition.Set(randomPositionX, _spawnPositionY, 0f);
