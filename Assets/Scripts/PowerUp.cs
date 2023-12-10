@@ -11,10 +11,11 @@ public class PowerUp : MonoBehaviour
         Shield
     }
 
-    [SerializeField] private float _powerUpSpeed = 3f;    
+    [SerializeField] private float _powerUpSpeed = 3f;
     [SerializeField] private float _duration = 5f;
     [SerializeField] private PowerUpType _type;
-    private float _minYPosition = -6f;
+    [SerializeField] private AudioClip _powerUpClip;
+    private readonly float _minYPosition = -6f;
 
     private void Update()
     {
@@ -43,6 +44,7 @@ public class PowerUp : MonoBehaviour
 
     private void ActivatePowerUp(Player player)
     {
+        AudioSource.PlayClipAtPoint(_powerUpClip, transform.position);
         switch (_type)
         {
             case PowerUpType.TripleShot:

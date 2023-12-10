@@ -9,11 +9,10 @@ public class UIManager : MonoSingleton<UIManager>
     [SerializeField] private TextMeshProUGUI _scoreText, _gameOverText, _restartGameText;
     [SerializeField] private Image _livesImage;
     [SerializeField] private Sprite[] _livesSprites;
-    private WaitForSeconds _flickerDelay = new(0.25f);
+    private readonly WaitForSeconds _flickerDelay = new(0.25f);
 
     private void Start()
     {
-        _gameOverText.gameObject.SetActive(false);
         UpdateScoreText(0);
     }
 
@@ -24,25 +23,19 @@ public class UIManager : MonoSingleton<UIManager>
 
     public void UpdateLivesDisplay(int currentLives)
     {
-        if (currentLives > 3)
-            currentLives = 3;
-        else if (currentLives < 0)
-            currentLives = 0;
+        currentLives = Mathf.Clamp(currentLives, 0, _livesSprites.Length - 1);
 
         _livesImage.sprite = _livesSprites[currentLives];
 
         if (currentLives == 0)
-        {
-            ActivateGameOver();
-        }
-
+            ActivateGameOver();        
     }
 
     private void ActivateGameOver()
     {
         _gameOverText.gameObject.SetActive(true);
         _restartGameText.gameObject.SetActive(true);
-        StartCoroutine(GameOverFlickerRoutine());
+        _ = StartCoroutine(GameOverFlickerRoutine());
         GameManager.Instance.GameOver();
     }
 

@@ -4,41 +4,46 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private float _playerSpeed = 4f;
+    [SerializeField] private float _playerSpeed = 5f;
     [SerializeField] private float _powerUpSpeedMultiplier = 1f;
     [SerializeField] private GameObject _laserPrefab, _tripleShotPrefab;
-    [SerializeField] private GameObject _shield;
+    [SerializeField] private GameObject _shield, _thruster;
+    [SerializeField] private GameObject[] _wings;
     [SerializeField] private int _playerLives = 3;
-    private Vector3 _direction, _limitY, _teleportPositionX, _laserOffset;
-    private float _minYPosition = -3.85f;
-    private float _maxYPosition = 5.85f;
-    private float _maxXPosition = 11.2f;
-    private float _minXPosition = -11.2f;
-    private float _teleportXPosition = 11f;
-    private float _canFire = -1f;
-    private float _laserOffsetY = 1.05f;
     [SerializeField] private float _fireDelay = 0.25f;
     [SerializeField] private bool _isTripleShotOn = false;
     [SerializeField] private bool _isShieldOn = false;
+    [SerializeField] private AudioClip _laserSoundClip;
+    private readonly float _minYPosition = -3.85f;
+    private readonly float _maxYPosition = 5.85f;
+    private readonly float _maxXPosition = 11.2f;
+    private readonly float _minXPosition = -11.2f;
+    private readonly float _teleportXPosition = 11f;
+    private readonly float _laserOffsetY = 1.05f;
+    private Vector3 _direction, _limitY, _teleportPositionX, _laserOffset;
+    private float _canFire = -1f;
     private Coroutine _tripleShotRoutine, _speedRoutine;
     private int _score;
+    private AudioSource _audioSource;
 
     private void Start()
     {
+        _audioSource = GetComponent<AudioSource>();
+        if (_audioSource == null)
+            Debug.LogError("Audio Source is NULL on the Player");
+        else
+            _audioSource.clip = _laserSoundClip;
         transform.position = Vector3.zero;
     }
 
     private void Update()
     {
-        //Get player input
         float moveX = Input.GetAxis("Horizontal");
         float moveY = Input.GetAxis("Vertical");
         _direction.Set(moveX, moveY, 0);               
 
-        //Call the movement method
         MovePlayer(_direction);
 
-        //Fire the laser when pressing Space
         if (Input.GetKeyDown(KeyCode.Space) && _canFire <= Time.time)
         {
             FireLaser();
@@ -50,24 +55,23 @@ public class Player : MonoBehaviour
         _canFire = Time.time + _fireDelay;
         if (_isTripleShotOn)
         {
-            Instantiate(_tripleShotPrefab, transform.position, Quaternion.identity);
+            _ = Instantiate(_tripleShotPrefab, transform.position, Quaternion.identity);
         }
         else
         {
             _laserOffset.Set(transform.position.x, transform.position.y + _laserOffsetY, 0);
-            Instantiate(_laserPrefab, _laserOffset, Quaternion.identity);
-        }        
+            _ = Instantiate(_laserPrefab, _laserOffset, Quaternion.identity);
+        }
+
+        _audioSource.Play();
     }
 
     private void MovePlayer(Vector3 direction)
     {
-        //Restrict Y position
         RestrictYPosition();
 
-        //Teleport player on the X-axis when leaving the screen
         TeleportOnXAxis();
 
-        //Move the player based on its receiving Input
         transform.Translate(_playerSpeed * _powerUpSpeedMultiplier * Time.deltaTime * direction);
     }
 
@@ -89,7 +93,6 @@ public class Player : MonoBehaviour
 
     private bool IsOutsideXBounds()
     {
-        //Returns true if the player is outside of bounds on the X axis
         return transform.position.x > _maxXPosition || transform.position.x < _minXPosition;
     }
 
@@ -111,12 +114,14 @@ public class Player : MonoBehaviour
     private IEnumerator EnableSpeedRoutine(float duration)
     {
         _powerUpSpeedMultiplier = 2.5f;
+        _thruster.SetActive(true);
         yield return new WaitForSeconds(duration);
         _powerUpSpeedMultiplier = 1f;
+        _thruster.SetActive(false);
         _speedRoutine = null;
     }
 
-    private void ActivateDeactivateShield(bool activate)
+    private void SetShieldState(bool activate)
     {
         _isShieldOn = activate;
         _shield.SetActive(activate);
@@ -140,7 +145,7 @@ public class Player : MonoBehaviour
 
     public void ActivateShieldPowerUp()
     {
-        ActivateDeactivateShield(true);
+        SetShieldState(true);
     }
 
     public void AddScorePoints(int value)
@@ -149,15 +154,41 @@ public class Player : MonoBehaviour
         UIManager.Instance.UpdateScoreText(_score);
     }
 
+    private void ActivateWingsEffect(int lives)
+    {
+        if (lives == 2)
+            ActivateRandomWingEffect();
+        else
+        {
+            ActivateAllWings();
+        }
+            
+    }
+
+    private void ActivateAllWings()
+    {
+        foreach (var wings in _wings)
+        {
+            wings.SetActive(true);
+        }
+    }
+
+    private void ActivateRandomWingEffect()
+    {
+        int randomNumber = Random.Range(0, _wings.Length);
+        _wings[randomNumber].SetActive(true);
+    }
+
     public void TakeDamage()
     {
         if (_isShieldOn)
         {
-            ActivateDeactivateShield(false);
+            SetShieldState(false);
             return;
         }
 
         _playerLives--;
+        ActivateWingsEffect(_playerLives);
         UIManager.Instance.UpdateLivesDisplay(_playerLives);
 
         if (_playerLives <= 0)
