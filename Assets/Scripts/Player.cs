@@ -20,11 +20,13 @@ public class Player : MonoBehaviour
     private readonly float _minXPosition = -11.2f;
     private readonly float _teleportXPosition = 11f;
     private readonly float _laserOffsetY = 1.05f;
+    private readonly WaitForSeconds _invulnerabilityDelay = new(1f);
     private Vector3 _direction, _limitY, _teleportPositionX, _laserOffset;
     private float _canFire = -1f;
     private Coroutine _tripleShotRoutine, _speedRoutine;
     private int _score;
     private AudioSource _audioSource;
+    private bool _isInvulnerable = false;
 
     private void Start()
     {
@@ -181,6 +183,9 @@ public class Player : MonoBehaviour
 
     public void TakeDamage()
     {
+        if (_isInvulnerable)
+            return;
+
         if (_isShieldOn)
         {
             SetShieldState(false);
@@ -188,6 +193,7 @@ public class Player : MonoBehaviour
         }
 
         _playerLives--;
+        _ = StartCoroutine(InvulnerabilityRoutine());
         ActivateWingsEffect(_playerLives);
         UIManager.Instance.UpdateLivesDisplay(_playerLives);
 
@@ -195,6 +201,22 @@ public class Player : MonoBehaviour
         {
             SpawnManager.Instance.StopSpawning();
             Destroy(gameObject);
+        }
+    }
+
+    private IEnumerator InvulnerabilityRoutine()
+    {
+        _isInvulnerable = true;
+        yield return _invulnerabilityDelay;
+        _isInvulnerable = false;
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("EnemyLaser"))
+        {
+            TakeDamage();
+            Destroy(other.gameObject);
         }
     }
 }

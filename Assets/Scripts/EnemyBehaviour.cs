@@ -5,7 +5,8 @@ using UnityEngine;
 public class EnemyBehaviour : MonoBehaviour
 {
     [SerializeField] private float _enemySpeed = 4f;
-    [SerializeField] private int _health = 1;    
+    [SerializeField] private int _health = 1;
+    [SerializeField] GameObject _laserPrefab;
     private readonly float _maxYPosition = 7.35f;
     private readonly float _minYPosition = -5.5f;
     private readonly float _maxXPosition = 9.2f;
@@ -15,6 +16,8 @@ public class EnemyBehaviour : MonoBehaviour
     private Animator _animator;
     private int _onEnemyDeathHash;
     private AudioSource _audioSource;
+    private float _canFire = -1f;
+    private float _fireRate = 3f;
 
     private void Start()
     {
@@ -36,6 +39,18 @@ public class EnemyBehaviour : MonoBehaviour
     private void Update()
     {
         CalculateMovement();
+
+        if(Time.time >= _canFire)
+        {
+            FireLaser();
+        }
+    }
+
+    private void FireLaser()
+    {
+        _fireRate = Random.Range(3f, 7f);
+        _canFire = Time.time + _fireRate;
+        _ = Instantiate(_laserPrefab, transform.position, Quaternion.identity);
     }
 
     private void CalculateMovement()
@@ -80,6 +95,7 @@ public class EnemyBehaviour : MonoBehaviour
             _enemySpeed = 0f;
             _audioSource.Play();
             Destroy(gameObject, 2.5f);
+            Destroy(this);
         }
     }
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 public class LaserBehaviour : MonoBehaviour
 {
     [SerializeField] private float _laserSpeed = 8f;
+    [SerializeField] private bool _isPlayerLaser = true;
     private void Start()
     {
         if(transform.parent != null)
@@ -20,6 +21,14 @@ public class LaserBehaviour : MonoBehaviour
 
     private void Update()
     {
-        transform.Translate(_laserSpeed * Time.deltaTime * Vector3.up);
+        CalculateMovement();
+    }
+
+    private void CalculateMovement()
+    {
+        if(_isPlayerLaser)
+            transform.Translate(_laserSpeed * Time.deltaTime * Vector3.up);
+        else
+            transform.Translate(_laserSpeed * Time.deltaTime * Vector3.down);
     }
 }
