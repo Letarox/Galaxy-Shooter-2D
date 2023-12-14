@@ -8,7 +8,10 @@ public class PowerUp : MonoBehaviour
     {
         TripleShot,
         Speed,
-        Shield
+        Shield,
+        Ammo,
+        Life,
+        Special
     }
 
     [SerializeField] private float _powerUpSpeed = 3f;
@@ -55,6 +58,15 @@ public class PowerUp : MonoBehaviour
                 break;
             case PowerUpType.Shield:
                 player.ActivateShieldPowerUp();
+                break;
+            case PowerUpType.Ammo:
+                player.GrantBonusAmmo();
+                break;
+            case PowerUpType.Life:
+                player.GrantBonusLife();
+                break;
+            case PowerUpType.Special:
+                player.ActivateSpecialPowerUp();
                 break;
             default:
                 break;

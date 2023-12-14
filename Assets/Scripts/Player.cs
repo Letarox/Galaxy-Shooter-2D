@@ -6,14 +6,15 @@ public class Player : MonoBehaviour
 {
     [SerializeField] private float _playerSpeed = 5f;
     [SerializeField] private float _powerUpSpeedMultiplier = 1f;
+    [SerializeField] private float _thrusterSpeedMultipler = 1.5f;
     [SerializeField] private GameObject _laserPrefab, _tripleShotPrefab;
     [SerializeField] private GameObject _shield, _thruster;
     [SerializeField] private GameObject[] _wings;
     [SerializeField] private int _playerLives = 3;
     [SerializeField] private float _fireDelay = 0.25f;
     [SerializeField] private bool _isTripleShotOn = false;
-    [SerializeField] private bool _isShieldOn = false;
     [SerializeField] private AudioClip _laserSoundClip;
+    [SerializeField] private Color[] _shieldColors;
     private readonly float _minYPosition = -3.85f;
     private readonly float _maxYPosition = 5.85f;
     private readonly float _maxXPosition = 11.2f;
@@ -25,8 +26,11 @@ public class Player : MonoBehaviour
     private float _canFire = -1f;
     private Coroutine _tripleShotRoutine, _speedRoutine;
     private int _score;
+    private int _shieldStrength;
+    private int _ammoCount = 15;
     private AudioSource _audioSource;
     private bool _isInvulnerable = false;
+    private bool _thrusterActive = false;
 
     private void Start()
     {
@@ -42,13 +46,30 @@ public class Player : MonoBehaviour
     {
         float moveX = Input.GetAxis("Horizontal");
         float moveY = Input.GetAxis("Vertical");
-        _direction.Set(moveX, moveY, 0);               
+        _direction.Set(moveX, moveY, 0);
 
         MovePlayer(_direction);
 
         if (Input.GetKeyDown(KeyCode.Space) && _canFire <= Time.time)
         {
-            FireLaser();
+            if(_ammoCount > 0)
+            {
+                _ammoCount--;
+                UIManager.Instance.UpdateAmmoAmount(_ammoCount);
+                FireLaser();
+            }
+        }
+
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            _thrusterActive = true;
+            _thruster.SetActive(true);
+        }
+        else
+        {
+            _thrusterActive = false;
+            if (_powerUpSpeedMultiplier == 1f)
+                _thruster.SetActive(false);
         }
     }
 
@@ -74,7 +95,10 @@ public class Player : MonoBehaviour
 
         TeleportOnXAxis();
 
-        transform.Translate(_playerSpeed * _powerUpSpeedMultiplier * Time.deltaTime * direction);
+        if(_thrusterActive && _powerUpSpeedMultiplier == 1f)
+            transform.Translate(_playerSpeed * _thrusterSpeedMultipler * Time.deltaTime * direction);
+        else
+            transform.Translate(_playerSpeed * _powerUpSpeedMultiplier * Time.deltaTime * direction);
     }
 
     private void RestrictYPosition()
@@ -123,10 +147,16 @@ public class Player : MonoBehaviour
         _speedRoutine = null;
     }
 
-    private void SetShieldState(bool activate)
+    private void SetShieldState(int strength)
     {
-        _isShieldOn = activate;
-        _shield.SetActive(activate);
+        if(strength == 0)
+        {
+            _shield.SetActive(false);
+            return;
+        }
+
+        strength = Mathf.Clamp(strength, 0, 3);
+        _shield.GetComponent<SpriteRenderer>().color = _shieldColors[strength - 1];
     }
 
     public void ActivateTripleShotPowerUp(float duration)
@@ -147,7 +177,32 @@ public class Player : MonoBehaviour
 
     public void ActivateShieldPowerUp()
     {
-        SetShieldState(true);
+        _shieldStrength = 3;
+        SetShieldState(_shieldStrength);
+        _shield.SetActive(true);
+    }
+
+    public void GrantBonusAmmo()
+    {
+        _ammoCount += Random.Range(10,16);
+        _ = Mathf.Clamp(_ammoCount, 0, 100);
+        UIManager.Instance.UpdateAmmoAmount(_ammoCount);
+    }
+
+    public void GrantBonusLife()
+    {
+        _playerLives++;
+        _ = Mathf.Clamp(_playerLives, 0, 3);
+        UIManager.Instance.UpdateLivesDisplay(_playerLives);
+    }
+
+    public void ActivateSpecialPowerUp()
+    {
+        var enemies = SpawnManager.Instance.GetAllEnemyBehaviors();
+        foreach(var enemy in enemies)
+        {
+            enemy.TakeDamage(100);
+        }
     }
 
     public void AddScorePoints(int value)
@@ -186,9 +241,10 @@ public class Player : MonoBehaviour
         if (_isInvulnerable)
             return;
 
-        if (_isShieldOn)
+        if (_shieldStrength > 0)
         {
-            SetShieldState(false);
+            _shieldStrength--;
+            SetShieldState(_shieldStrength);
             return;
         }
 
@@ -218,5 +274,10 @@ public class Player : MonoBehaviour
             TakeDamage();
             Destroy(other.gameObject);
         }
+    }
+
+    public int GetPlayerLives()
+    {
+        return _playerLives;
     }
 }

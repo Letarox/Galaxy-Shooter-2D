@@ -21,19 +21,24 @@ public class EnemyBehaviour : MonoBehaviour
 
     private void Start()
     {
+        InitializeEnemyComponents();
+
+        _onEnemyDeathHash = Animator.StringToHash("OnEnemyDeath");
+    }
+
+    private void InitializeEnemyComponents()
+    {
         _player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         if (_player == null)
             Debug.LogError("Player is NULL on " + gameObject.name);
 
         _animator = GetComponent<Animator>();
-        if(_animator == null)
+        if (_animator == null)
             Debug.LogError("Animator is NULL on " + gameObject.name);
 
         _audioSource = GetComponent<AudioSource>();
         if (_audioSource == null)
             Debug.LogError("Audio Source is NULL on " + gameObject.name);
-
-        _onEnemyDeathHash = Animator.StringToHash("OnEnemyDeath");
     }
 
     private void Update()
@@ -86,7 +91,7 @@ public class EnemyBehaviour : MonoBehaviour
         }
     }
 
-    private void TakeDamage(int damage)
+    public void TakeDamage(int damage)
     {
         _health-= damage;
         if (_health <= 0)
