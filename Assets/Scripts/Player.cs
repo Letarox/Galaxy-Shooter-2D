@@ -30,7 +30,7 @@ public class Player : MonoBehaviour
     private int _ammoCount = 15;
     private AudioSource _audioSource;
     private bool _isInvulnerable = false;
-    private bool _thrusterActive = false;
+    private bool _isThrusterActive = false;
 
     private void Start()
     {
@@ -60,16 +60,18 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftShift) && _powerUpSpeedMultiplier == 1f && UIManager.Instance.CanUseThrusterBoost())
         {
-            _thrusterActive = true;
+            _isThrusterActive = true;
             _thruster.SetActive(true);
+            _ = StartCoroutine(UIManager.Instance.ThrusterBoostSliderDownRoutine());
         }
         else
         {
-            _thrusterActive = false;
+            _isThrusterActive = false;
             if (_powerUpSpeedMultiplier == 1f)
                 _thruster.SetActive(false);
+            _ = StartCoroutine(UIManager.Instance.ThrusterBoostSliderUpRoutine());
         }
     }
 
@@ -95,7 +97,7 @@ public class Player : MonoBehaviour
 
         TeleportOnXAxis();
 
-        if(_thrusterActive && _powerUpSpeedMultiplier == 1f)
+        if(_isThrusterActive && _powerUpSpeedMultiplier == 1f)
             transform.Translate(_playerSpeed * _thrusterSpeedMultipler * Time.deltaTime * direction);
         else
             transform.Translate(_playerSpeed * _powerUpSpeedMultiplier * Time.deltaTime * direction);
@@ -185,15 +187,22 @@ public class Player : MonoBehaviour
     public void GrantBonusAmmo()
     {
         _ammoCount += Random.Range(10,16);
-        _ = Mathf.Clamp(_ammoCount, 0, 100);
+        _ammoCount = Mathf.Clamp(_ammoCount, 0, 100);
         UIManager.Instance.UpdateAmmoAmount(_ammoCount);
     }
 
     public void GrantBonusLife()
     {
         _playerLives++;
-        _ = Mathf.Clamp(_playerLives, 0, 3);
+        _playerLives = Mathf.Clamp(_playerLives, 0, 3);
         UIManager.Instance.UpdateLivesDisplay(_playerLives);
+
+        if (_playerLives == 3)
+            SetAllWings(false);
+        else
+        {
+            SetRandomWingEffect(false);
+        }
     }
 
     public void ActivateSpecialPowerUp()
@@ -214,26 +223,25 @@ public class Player : MonoBehaviour
     private void ActivateWingsEffect(int lives)
     {
         if (lives == 2)
-            ActivateRandomWingEffect();
+            SetRandomWingEffect(true);
         else
         {
-            ActivateAllWings();
+            SetAllWings(true);
         }
-            
     }
 
-    private void ActivateAllWings()
+    private void SetAllWings(bool active)
     {
         foreach (var wings in _wings)
         {
-            wings.SetActive(true);
+            wings.SetActive(active);
         }
     }
 
-    private void ActivateRandomWingEffect()
+    private void SetRandomWingEffect(bool active)
     {
         int randomNumber = Random.Range(0, _wings.Length);
-        _wings[randomNumber].SetActive(true);
+        _wings[randomNumber].SetActive(active);
     }
 
     public void TakeDamage()

@@ -9,10 +9,17 @@ public class UIManager : MonoSingleton<UIManager>
     [SerializeField] private TextMeshProUGUI _scoreText, _gameOverText, _restartGameText, _ammoText;
     [SerializeField] private Image _livesImage;
     [SerializeField] private Sprite[] _livesSprites;
+    [SerializeField] private Slider _boostSlider;
     private readonly WaitForSeconds _flickerDelay = new(0.25f);
+    private readonly WaitForSeconds _boostDelay = new(0.05f);
+    private float _boostSliderMaxValue = 100f;
+    private bool _canUseBoost = true;
+    private bool _losingFuel = false;
+    private bool _gainingFuel = false;
 
     private void Start()
     {
+        _boostSlider.value = _boostSliderMaxValue;
         UpdateScoreText(0);
         UpdateAmmoAmount(15);
     }
@@ -39,7 +46,7 @@ public class UIManager : MonoSingleton<UIManager>
         _livesImage.sprite = _livesSprites[currentLives];
 
         if (currentLives == 0)
-            ActivateGameOver();        
+            ActivateGameOver();
     }
 
     private void ActivateGameOver()
@@ -58,6 +65,54 @@ public class UIManager : MonoSingleton<UIManager>
             yield return _flickerDelay;
             _gameOverText.text = "";
             yield return _flickerDelay;
+        }
+    }
+
+    public bool CanUseThrusterBoost()
+    {
+        return _canUseBoost;
+    }
+
+    public IEnumerator ThrusterBoostSliderDownRoutine()
+    {
+        if (_losingFuel)
+            yield break;
+
+        _losingFuel = true;
+        _gainingFuel = false;
+
+        while (_losingFuel)
+        {
+            _boostSlider.value -= 1.25f;
+            yield return _boostDelay;
+
+            if (_boostSlider.value <= 0f)
+            {
+                _boostSlider.value = 0f;
+                _canUseBoost = false;
+                _losingFuel = false;
+            }
+        }
+    }
+
+    public IEnumerator ThrusterBoostSliderUpRoutine()
+    {
+        if (_gainingFuel || _boostSlider.value == 100f)
+            yield break;
+
+        _gainingFuel = true;
+        _losingFuel = false;
+
+        while (_gainingFuel && !_canUseBoost)
+        {
+            _boostSlider.value += 1f;
+            yield return _boostDelay;
+
+            if (_boostSlider.value == _boostSliderMaxValue)
+            {
+                _canUseBoost = true;
+                _gainingFuel = false;
+            }
         }
     }
 }
