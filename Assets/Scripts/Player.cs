@@ -15,6 +15,7 @@ public class Player : MonoBehaviour
     [SerializeField] private bool _isTripleShotOn = false;
     [SerializeField] private AudioClip _laserSoundClip;
     [SerializeField] private Color[] _shieldColors;
+    [SerializeField] private CameraShake _cameraShake;
     private readonly float _minYPosition = -3.85f;
     private readonly float _maxYPosition = 5.85f;
     private readonly float _maxXPosition = 11.2f;
@@ -258,6 +259,7 @@ public class Player : MonoBehaviour
 
         _playerLives--;
         _ = StartCoroutine(InvulnerabilityRoutine());
+        _ = StartCoroutine(_cameraShake.CameraShakeRoutine());
         ActivateWingsEffect(_playerLives);
         UIManager.Instance.UpdateLivesDisplay(_playerLives);
 

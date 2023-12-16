@@ -285,7 +285,7 @@ SpriteRenderer:
   m_SortingLayer: 2
   m_SortingOrder: 3
   m_Sprite: {fileID: 21300000, guid: 333b0196b7a764df5a7768ead9b69dbc, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.990566, g: 0.08755659, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -421,6 +421,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerSpeed: 5
   _powerUpSpeedMultiplier: 1
+  _thrusterSpeedMultipler: 1.5
   _laserPrefab: {fileID: 6811890150721657884, guid: ddc32785bd0fe86468207fb25819d759, type: 3}
   _tripleShotPrefab: {fileID: 41005034691857671, guid: 54807849e5c7ccb4693a242b4c18f2f7, type: 3}
   _shield: {fileID: 338992355}
@@ -431,8 +432,12 @@ MonoBehaviour:
   _playerLives: 3
   _fireDelay: 0.25
   _isTripleShotOn: 0
-  _isShieldOn: 0
   _laserSoundClip: {fileID: 8300000, guid: 75676f361bdfeaf41a46623e95df3dbc, type: 3}
+  _shieldColors:
+  - {r: 0.99215686, g: 0.08627451, b: 0, a: 1}
+  - {r: 0.5647059, g: 1, b: 0.41960785, a: 1}
+  - {r: 1, g: 1, b: 1, a: 1}
+  _cameraShake: {fileID: 0}
 --- !u!61 &208357297760953851
 BoxCollider2D:
   m_ObjectHideFlags: 0

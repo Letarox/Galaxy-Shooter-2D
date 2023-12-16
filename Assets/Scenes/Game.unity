@@ -1019,6 +1019,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1116926905}
   - component: {fileID: 1116926904}
+  - component: {fileID: 1116926907}
   - component: {fileID: 1116926903}
   - component: {fileID: 1116926906}
   m_Layer: 0
@@ -1154,6 +1155,52 @@ MonoBehaviour:
   m_BeforeTransparentBundles: []
   m_BeforeStackBundles: []
   m_AfterStackBundles: []
+--- !u!114 &1116926907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1116926902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11d3f4cf28787bf4ba7914fc501c1607, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _duration: 1
+  _animationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.20019008
+      value: 1.0080086
+      inSlope: 1.5899386
+      outSlope: 1.5899386
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1.003861
+      value: 0.04677859
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1160959559
 GameObject:
   m_ObjectHideFlags: 0
@@ -1232,8 +1279,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1160959559}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 1, z: 0}
-  m_LocalScale: {x: 1.08, y: 1.07, z: 1}
+  m_LocalPosition: {x: -0.192, y: 0.8081, z: 0}
+  m_LocalScale: {x: 1.1999513, y: 1.1766092, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1428,78 +1475,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 338992355, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 338992358, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: m_Color.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 338992358, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: m_Color.g
-      value: 0.08755659
-      objectReference: {fileID: 0}
-    - target: {fileID: 338992358, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: m_Color.r
-      value: 0.990566
-      objectReference: {fileID: 0}
     - target: {fileID: 208357297760953843, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 208357297760953843, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 208357297760953844, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: _shieldColors.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 208357297760953844, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: _shieldColors.Array.data[0].a
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 208357297760953844, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: _shieldColors.Array.data[0].g
-      value: 0.08627451
-      objectReference: {fileID: 0}
-    - target: {fileID: 208357297760953844, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: _shieldColors.Array.data[0].r
-      value: 0.99215686
-      objectReference: {fileID: 0}
-    - target: {fileID: 208357297760953844, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: _shieldColors.Array.data[1].a
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 208357297760953844, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: _shieldColors.Array.data[1].b
-      value: 0.41960785
-      objectReference: {fileID: 0}
-    - target: {fileID: 208357297760953844, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: _shieldColors.Array.data[1].g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 208357297760953844, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: _shieldColors.Array.data[1].r
-      value: 0.5647059
-      objectReference: {fileID: 0}
-    - target: {fileID: 208357297760953844, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: _shieldColors.Array.data[2].a
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 208357297760953844, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: _shieldColors.Array.data[2].b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 208357297760953844, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: _shieldColors.Array.data[2].g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 208357297760953844, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
-      propertyPath: _shieldColors.Array.data[2].r
-      value: 1
-      objectReference: {fileID: 0}
+      propertyPath: _cameraShake
+      value: 
+      objectReference: {fileID: 1116926907}
     - target: {fileID: 208357297760953847, guid: 5b024519634a02f46b7a1c2bec9e7d54, type: 3}
       propertyPath: m_RootOrder
       value: 5
