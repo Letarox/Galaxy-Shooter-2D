@@ -104,6 +104,8 @@ MonoBehaviour:
   _enemySpeed: 4
   _health: 1
   _laserPrefab: {fileID: 2176251049198430554, guid: cdc037665f764ff4c9fcc08b16e9c360, type: 3}
+  _explosionPrefab: {fileID: 601956958442148732, guid: 223d7be3bbfc5fa45a3c733b77721fc8, type: 3}
+  _type: 0
 --- !u!61 &7651474685806012132
 BoxCollider2D:
   m_ObjectHideFlags: 0

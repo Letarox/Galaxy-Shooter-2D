@@ -6,12 +6,14 @@ using UnityEngine.UI;
 
 public class UIManager : MonoSingleton<UIManager>
 {
-    [SerializeField] private TextMeshProUGUI _scoreText, _gameOverText, _restartGameText, _ammoText;
+    [SerializeField] private TextMeshProUGUI _scoreText, _gameOverText, _restartGameText, _ammoText, _waveSpawnText, _waveNumberText;
     [SerializeField] private Image _livesImage;
     [SerializeField] private Sprite[] _livesSprites;
     [SerializeField] private Slider _boostSlider;
     private readonly WaitForSeconds _flickerDelay = new(0.25f);
     private readonly WaitForSeconds _boostDelay = new(0.05f);
+    private readonly WaitForSeconds _waveDelay = new(1f);
+    private readonly WaitForSeconds _nowDelay = new(0.5f);
     private float _boostSliderMaxValue = 100f;
     private bool _canUseBoost = true;
     private bool _losingFuel = false;
@@ -22,11 +24,17 @@ public class UIManager : MonoSingleton<UIManager>
         _boostSlider.value = _boostSliderMaxValue;
         UpdateScoreText(0);
         UpdateAmmoAmount(15);
+        UpdateWaveText(1);
     }
 
     public void UpdateScoreText(int score)
     {
         _scoreText.text = "Score: " + score.ToString();
+    }
+
+    public void UpdateWaveText(int wave)
+    {
+        _waveNumberText.text = "Wave: " + wave.ToString();
     }
 
     public void UpdateAmmoAmount(int ammo)
@@ -114,5 +122,19 @@ public class UIManager : MonoSingleton<UIManager>
                 _gainingFuel = false;
             }
         }
+    }
+    public IEnumerator NextWaveSpawnRoutine(int wave)
+    {
+        _waveSpawnText.gameObject.SetActive(true);
+
+        for (int i = 3; i >= 0; i--)
+        {
+            string message = (i > 0) ? $"WAVE {wave} STARTS IN {i}!" : $"WAVE {wave} STARTS NOW!";
+            _waveSpawnText.text = message;
+
+            yield return (i > 0) ? _waveDelay : _nowDelay;
+        }
+
+        _waveSpawnText.gameObject.SetActive(false);
     }
 }

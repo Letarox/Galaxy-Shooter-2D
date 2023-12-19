@@ -25,13 +25,14 @@ public class Player : MonoBehaviour
     private readonly WaitForSeconds _invulnerabilityDelay = new(1f);
     private Vector3 _direction, _limitY, _teleportPositionX, _laserOffset;
     private float _canFire = -1f;
-    private Coroutine _tripleShotRoutine, _speedRoutine;
+    private Coroutine _tripleShotRoutine, _speedRoutine, _slowRoutine;
     private int _score;
     private int _shieldStrength;
     private int _ammoCount = 15;
     private AudioSource _audioSource;
     private bool _isInvulnerable = false;
     private bool _isThrusterActive = false;
+    private bool _isPlayerSlowed = false;
 
     private void Start()
     {
@@ -61,7 +62,7 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (Input.GetKey(KeyCode.LeftShift) && _powerUpSpeedMultiplier == 1f && UIManager.Instance.CanUseThrusterBoost())
+        if (Input.GetKey(KeyCode.LeftShift) && !_isPlayerSlowed && _powerUpSpeedMultiplier == 1f && UIManager.Instance.CanUseThrusterBoost())
         {
             _isThrusterActive = true;
             _thruster.SetActive(true);
@@ -95,8 +96,13 @@ public class Player : MonoBehaviour
     private void MovePlayer(Vector3 direction)
     {
         RestrictYPosition();
-
         TeleportOnXAxis();
+
+        if (_isPlayerSlowed)
+        {
+            transform.Translate(_playerSpeed / 2f * Time.deltaTime * direction);
+            return;
+        }            
 
         if(_isThrusterActive && _powerUpSpeedMultiplier == 1f)
             transform.Translate(_playerSpeed * _thrusterSpeedMultipler * Time.deltaTime * direction);
@@ -143,11 +149,23 @@ public class Player : MonoBehaviour
     private IEnumerator EnableSpeedRoutine(float duration)
     {
         _powerUpSpeedMultiplier = 2.5f;
-        _thruster.SetActive(true);
+        if(!_isPlayerSlowed)
+            _thruster.SetActive(true);
         yield return new WaitForSeconds(duration);
         _powerUpSpeedMultiplier = 1f;
         _thruster.SetActive(false);
         _speedRoutine = null;
+    }
+
+    private IEnumerator EnableSlowRoutine(float duration)
+    {
+        _isPlayerSlowed = true;
+        if(_powerUpSpeedMultiplier > 1f)
+            _thruster.SetActive(false);
+        yield return new WaitForSeconds(duration);
+        if (_powerUpSpeedMultiplier > 1f)
+            _thruster.SetActive(true);
+        _isPlayerSlowed = false;
     }
 
     private void SetShieldState(int strength)
@@ -213,6 +231,14 @@ public class Player : MonoBehaviour
         {
             enemy.TakeDamage(100);
         }
+    }
+
+    public void ActivateSlowPowerUp(float duration)
+    {
+        if (_slowRoutine != null)
+            StopCoroutine(_slowRoutine);
+
+        _slowRoutine = StartCoroutine(EnableSlowRoutine(duration));
     }
 
     public void AddScorePoints(int value)

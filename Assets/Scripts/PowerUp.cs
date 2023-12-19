@@ -11,7 +11,8 @@ public class PowerUp : MonoBehaviour
         Shield,
         Ammo,
         Life,
-        Special
+        Special,
+        Slow
     }
 
     [SerializeField] private float _powerUpSpeed = 3f;
@@ -67,6 +68,9 @@ public class PowerUp : MonoBehaviour
                 break;
             case PowerUpType.Special:
                 player.ActivateSpecialPowerUp();
+                break;
+            case PowerUpType.Slow:
+                player.ActivateSlowPowerUp(_duration);
                 break;
             default:
                 break;
