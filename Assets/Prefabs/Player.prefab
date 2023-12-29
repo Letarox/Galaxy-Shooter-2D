@@ -329,7 +329,7 @@ GameObject:
   - component: {fileID: 208357297760953851}
   - component: {fileID: 208357297760953850}
   - component: {fileID: 1846611534}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -422,7 +422,7 @@ MonoBehaviour:
   _playerSpeed: 5
   _powerUpSpeedMultiplier: 1
   _thrusterSpeedMultipler: 1.5
-  _laserPrefab: {fileID: 6811890150721657884, guid: ddc32785bd0fe86468207fb25819d759, type: 3}
+  _laserPrefab: {fileID: 1866442970610771091, guid: 1c9d3ce93c088304f849a7d658f8e756, type: 3}
   _tripleShotPrefab: {fileID: 41005034691857671, guid: 54807849e5c7ccb4693a242b4c18f2f7, type: 3}
   _shield: {fileID: 338992355}
   _thruster: {fileID: 72565190}

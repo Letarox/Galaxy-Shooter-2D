@@ -5,7 +5,7 @@ using UnityEngine;
 public class SpawnManager : MonoSingleton<SpawnManager>
 {
     [SerializeField] private GameObject[] _enemiesPrefab;
-    [SerializeField] private GameObject[] _powerups, _utilitiesPowerups;
+    [SerializeField] private GameObject[] _powerups;
     [SerializeField] private GameObject _enemyContainer, _powerUpContainer;
     private readonly WaitForSeconds _powerupSpawnDelay = new(6f);    
     private readonly float _maxXPosition = 9.2f;
@@ -20,6 +20,7 @@ public class SpawnManager : MonoSingleton<SpawnManager>
     private float _enemySpeedMultiplier = 1f;
     private float _spawnIntervalDecreasePercentage = 10f;
     private List<GameObject> _activeEnemies = new();
+    private int _weightedTotal;
 
     private void Start()
     {
@@ -37,7 +38,6 @@ public class SpawnManager : MonoSingleton<SpawnManager>
     {
         _ = StartCoroutine(EnemySpawnRoutine());
         _ = StartCoroutine(SpawnPowerUpRoutine());
-        _ = StartCoroutine(SpawnUtilityPowerUpRoutine());
     }
 
     private IEnumerator EnemySpawnRoutine()
@@ -66,12 +66,73 @@ public class SpawnManager : MonoSingleton<SpawnManager>
         }
     }
 
+    private GameObject ChooseRandomEnemy()
+    {
+        _weightedTotal = 0;
+
+        int[] enemyTable =
+        {
+            45, // Default Enemy
+            30, // Zigzag Enemy
+            25  // Aggressive Enemy
+        };
+
+        foreach (var enemy in enemyTable)
+            _weightedTotal += enemy;
+
+        int randomNumber = Random.Range(0, _weightedTotal);
+        int index = 0;
+
+        foreach (var weight in enemyTable)
+        {
+            if (randomNumber <= weight)
+                return _enemiesPrefab[index];
+
+            index++;
+            randomNumber -= weight;
+        }
+
+        return _enemiesPrefab[0];
+    }
+
+    private GameObject ChooseRandomPowerUp()
+    {
+        _weightedTotal = 0;
+
+        int[] powerupTable =
+        {
+            30, //TripleShot
+            40, //Speed            
+            20, //Shield
+            5,  //Special
+            10, //Slow
+            60, //Ammo
+            5   //Life
+        };
+
+        foreach (var powerup in powerupTable)
+            _weightedTotal += powerup;
+
+        int randomNumber = Random.Range(0, _weightedTotal);
+        int index = 0;
+
+        foreach (var weight in powerupTable)
+        {
+            if (randomNumber <= weight)
+                return _powerups[index];
+
+            index++;
+            randomNumber -= weight;
+        }
+
+        return _powerups[0];
+    }
+
     private void SpawnEnemy()
     {
         float randomPositionX = Random.Range(_minXPosition, _maxXPosition);
         _enemySpawnPosition.Set(randomPositionX, _spawnPositionY, 0f);
-        int randomEnemy = Random.Range(0, _enemiesPrefab.Length);
-        GameObject enemy = Instantiate(_enemiesPrefab[randomEnemy], _enemySpawnPosition, Quaternion.identity, _enemyContainer.transform);
+        GameObject enemy = Instantiate(ChooseRandomEnemy(), _enemySpawnPosition, Quaternion.identity, _enemyContainer.transform);
         _activeEnemies.Add(enemy);
         EnemyBehaviour enemyBehaviour = enemy.GetComponent<EnemyBehaviour>();
         if (enemyBehaviour != null)
@@ -90,29 +151,8 @@ public class SpawnManager : MonoSingleton<SpawnManager>
         {
             float randomPositionX = Random.Range(_minXPosition, _maxXPosition);
             _powerUpSpawnPosition.Set(randomPositionX, _spawnPositionY, 0f);
-            int randomPowerUP = Random.Range(0, _powerups.Length);
-            if(randomPowerUP == 3)
-                randomPowerUP = Random.Range(0, _powerups.Length);
-            _ = Instantiate(_powerups[randomPowerUP], _powerUpSpawnPosition, Quaternion.identity, _powerUpContainer.transform);
+            _ = Instantiate(ChooseRandomPowerUp(), _powerUpSpawnPosition, Quaternion.identity, _powerUpContainer.transform);
             yield return new WaitForSeconds(Random.Range(3, 8));
-        }
-    }
-
-    private IEnumerator SpawnUtilityPowerUpRoutine()
-    {
-        yield return _powerupSpawnDelay;
-        while (!_isPlayerAlive)
-        {
-            float randomPositionX = Random.Range(_minXPosition, _maxXPosition);
-            _utilityPowerUpSpawnPosition.Set(randomPositionX, _spawnPositionY, 0f);
-            if(_player.GetPlayerLives() < 3)
-            {
-                int randomPowerUP = Random.Range(0, _utilitiesPowerups.Length);
-                _ = Instantiate(_utilitiesPowerups[randomPowerUP], _utilityPowerUpSpawnPosition, Quaternion.identity, _powerUpContainer.transform);
-            }
-            else
-                _ = Instantiate(_utilitiesPowerups[0], _utilityPowerUpSpawnPosition, Quaternion.identity, _powerUpContainer.transform);
-            yield return new WaitForSeconds(Random.Range(5, 11));
         }
     }
 

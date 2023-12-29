@@ -20,6 +20,15 @@ public class PowerUp : MonoBehaviour
     [SerializeField] private PowerUpType _type;
     [SerializeField] private AudioClip _powerUpClip;
     private readonly float _minYPosition = -6f;
+    private bool _isBeingCollect = false;
+    private GameObject _player;
+
+    private void Start()
+    {
+        _player = GameObject.FindGameObjectWithTag("Player");
+        if (_player == null)
+            Debug.LogError("Player is NULL on " + gameObject.name);
+    }
 
     private void Update()
     {
@@ -28,9 +37,21 @@ public class PowerUp : MonoBehaviour
 
     private void MovePowerUp()
     {
-        transform.Translate(_powerUpSpeed * Time.deltaTime * Vector3.down);
+        if (!_isBeingCollect || !_player.activeInHierarchy)
+            transform.Translate(_powerUpSpeed * Time.deltaTime * Vector3.down);
+        else
+        {
+            Vector3 playerPos = _player.transform.position;
+            transform.position = Vector3.MoveTowards(transform.position, playerPos, _powerUpSpeed * Time.deltaTime);
+        }
+
         if (transform.position.y < _minYPosition)
             Destroy(gameObject);
+    }
+
+    public void ActivateBeingCollected()
+    {
+        _isBeingCollect = true;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -42,6 +63,10 @@ public class PowerUp : MonoBehaviour
             {
                 ActivatePowerUp(player);
             }
+            Destroy(gameObject);
+        }
+        else if (other.CompareTag("EnemyLaser"))
+        {
             Destroy(gameObject);
         }
     }

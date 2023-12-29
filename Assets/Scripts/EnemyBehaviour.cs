@@ -7,36 +7,66 @@ public class EnemyBehaviour : MonoBehaviour
     private enum EnemyType
     {
         Default,
-        Zigzag
+        Zigzag,
+        Aggressive,
+        Smart
     }
 
     [SerializeField] private float _enemySpeed = 4f;
     [SerializeField] private int _health = 1;
     [SerializeField] GameObject _laserPrefab;
+    [SerializeField] GameObject _horizontalLaserPrefab;
     [SerializeField] GameObject _explosionPrefab;
-    [SerializeField] private EnemyType _type;
+    [SerializeField] GameObject _shieldPrefab;
+    [SerializeField] GameObject[] _turboPrefab;
+    [SerializeField] private EnemyType _type;    
     private readonly float _maxYPosition = 7.35f;
     private readonly float _minYPosition = -5.5f;
     private readonly float _maxXPosition = 9.2f;
     private readonly float _minXPosition = -9.2f;
+    private Vector3 _laserOffset = new(0f, -1.4f, 0f);
     private Vector3 _newPosition;
+    private PowerUp[] _allPowerUps;
     private Player _player;
     private Animator _animator;
     private int _onEnemyDeathHash;
     private AudioSource _audioSource;
     private float _canFire = -1f;
+    private float _canFireAtPowerup = -1f;
     private float _fireRate = 3f;
     private int _direction = 1;
     private bool isMovingSideways = false;
+    private bool _isShieldActive = false;
     private Transform _spriteTransform;
 
     private void Start()
     {
         InitializeEnemyComponents();
-        if (_type == EnemyType.Zigzag)
-            _ = StartCoroutine(ZigZagMovementRoutine());
-        else 
-            _ = StartCoroutine(MoveSidewaysRoutine());
+        InitializeMovement();
+
+        if (Random.Range(0, 11) <= 3)
+        {
+            SetShieldState(true);
+        }
+
+        DetermineIfPowerupInfront();
+    }
+
+    private void InitializeMovement()
+    {
+        switch (_type)
+        {
+            case EnemyType.Default:
+                _ = StartCoroutine(MoveSidewaysRoutine());
+                break;
+            case EnemyType.Zigzag:
+                _ = StartCoroutine(ZigZagMovementRoutine());
+                break;
+            case EnemyType.Aggressive:
+                break;
+            default:
+                break;
+        }
     }
 
     private void InitializeEnemyComponents()
@@ -45,38 +75,93 @@ public class EnemyBehaviour : MonoBehaviour
         if (_player == null)
             Debug.LogError("Player is NULL on " + gameObject.name);
 
-        if (_type == EnemyType.Default)
-        {
-            _animator = GetComponent<Animator>();
-            if (_animator == null)
-                Debug.LogError("Animator is NULL on " + gameObject.name);
-            _onEnemyDeathHash = Animator.StringToHash("OnEnemyDeath");
-        }
-        else
-        {
-            _spriteTransform = transform.GetChild(0);
-        }
-
         _audioSource = GetComponent<AudioSource>();
         if (_audioSource == null)
             Debug.LogError("Audio Source is NULL on " + gameObject.name);
-    }
 
-    private void Update()
-    {        
-        CalculateMovement();
-
-        if(Time.time >= _canFire && _type != EnemyType.Zigzag)
+        switch (_type)
         {
-            FireLaser();
+            case EnemyType.Default:
+                _animator = GetComponent<Animator>();
+                if (_animator == null)
+                    Debug.LogError("Animator is NULL on " + gameObject.name);
+                _onEnemyDeathHash = Animator.StringToHash("OnEnemyDeath");
+                break;
+            case EnemyType.Smart:
+                _spriteTransform = transform;
+                break;
+            default:
+                _spriteTransform = transform.GetChild(0);
+                break;
         }
     }
 
-    private void FireLaser()
+    private void Update()
     {
-        _fireRate = Random.Range(3f, 7f);
-        _canFire = Time.time + _fireRate;
-        _ = Instantiate(_laserPrefab, transform.position, Quaternion.identity);
+        CalculateMovement();
+        if (Time.time >= _canFire && _type != EnemyType.Zigzag)
+        {
+            if (_type != EnemyType.Smart)
+            {
+                DetermineIfPowerupInfront();
+                FireLaser(true);
+            }
+            else
+            {
+                Vector2 toPlayer = _player.transform.position - transform.position;
+                float angle = Vector2.SignedAngle(-transform.right, toPlayer.normalized);
+                float alignmentThreshold = 5f;
+                float horizontalAlignment = Mathf.Abs(toPlayer.y) / Mathf.Abs(toPlayer.x);
+
+                if (Mathf.Abs(angle) < alignmentThreshold && horizontalAlignment < 1f)
+                    FireLaser(true);
+            }
+        }
+    }
+    private void DetermineIfPowerupInfront()
+    {
+        _allPowerUps = SpawnManager.Instance.transform.GetChild(1).GetComponentsInChildren<PowerUp>();
+        for (int i = 0; i < _allPowerUps.Length; i++)
+        {
+            Vector2 toPowerup = _allPowerUps[i].transform.position - transform.position;
+            float angle = Vector2.SignedAngle(-transform.up, toPowerup.normalized);
+            float alignmentThreshold = 5f;
+            float verticalAlignment = Mathf.Abs(toPowerup.x) / Mathf.Abs(toPowerup.y);
+
+            if (Mathf.Abs(angle) < alignmentThreshold && verticalAlignment < 1f && _canFireAtPowerup <= Time.time)
+            {
+                FireLaser(false);
+            }
+        }
+    }
+    private void FireLaser(bool fireAtPlayer)
+    {
+        if(_type == EnemyType.Aggressive)
+            _fireRate = Random.Range(1.5f, 3f);
+        else
+            _fireRate = Random.Range(3f, 7f);
+
+        if(fireAtPlayer)
+            _canFire = Time.time + _fireRate;
+        else
+            _canFireAtPowerup = Time.time + _fireRate;
+
+        if (_type != EnemyType.Smart)
+        {
+            _laserOffset.Set(0f, -1.4f, 0f);
+            _ = Instantiate(_laserPrefab, transform.position + _laserOffset, Quaternion.identity);
+        }
+        else
+        {
+            if(_direction > 0)
+                _laserOffset.Set(1.35f, 0f, 0f);
+            else
+                _laserOffset.Set(-1.35f, 0f, 0f);
+            GameObject laserObj = Instantiate(_horizontalLaserPrefab, transform.position + _laserOffset, Quaternion.identity);
+            LaserBehaviour laser = laserObj.GetComponent<LaserBehaviour>();
+            if (laser != null)
+                    laser.SetDirection(_direction);
+        }
     }
 
     private void CalculateMovement()
@@ -88,16 +173,29 @@ public class EnemyBehaviour : MonoBehaviour
                     transform.Translate(_enemySpeed / 2f * _direction * Time.deltaTime * Vector3.right);
 
                 transform.Translate(_enemySpeed * Time.deltaTime * Vector3.down);
+                CheckForBounce();
                 break;
             case EnemyType.Zigzag:
                 transform.Translate(_enemySpeed * _direction * Time.deltaTime * Vector3.right);
                 transform.Translate(_enemySpeed * Time.deltaTime * Vector3.down);
+                CheckForBounce();
+                break;
+            case EnemyType.Aggressive:
+                if (IsPlayerNearby())
+                {
+                    Vector3 playerPosition = _player.transform.position;
+                    transform.position = Vector3.MoveTowards(transform.position, playerPosition, _enemySpeed * Time.deltaTime);
+                }
+                transform.Translate(_enemySpeed * Time.deltaTime * Vector3.down);
+                CheckForBounce();
+                break;
+            case EnemyType.Smart:
+                transform.Translate(_enemySpeed * Time.deltaTime * Vector3.down);
                 break;
             default:
                 break;
-        }
-        
-        CheckForBounce();
+        }        
+
         TeleportNewPosition();
     }
 
@@ -133,15 +231,31 @@ public class EnemyBehaviour : MonoBehaviour
 
     private void RotateEnemy()
     {
-        if (transform.rotation.y == 0)
+        switch (_type)
         {
-            Vector3 rotation = new(0f, 180f, -90f);
-            _spriteTransform.Rotate(rotation);
-        }
-        else
-        {
-            Vector3 rotation = new(0f, 0f, -45f);
-            _spriteTransform.Rotate(rotation);
+            case EnemyType.Zigzag:
+                if (_spriteTransform.rotation.y == 0f)
+                {
+                    _spriteTransform.rotation = Quaternion.Euler(0f, 180f, -45f);
+                }
+                else
+                {
+                    _spriteTransform.rotation = Quaternion.Euler(0f, 0f, -45f);
+                }
+                break;
+
+            case EnemyType.Smart:
+                if (_direction > 0)
+                {
+                    _direction = 1;
+                    _spriteTransform.rotation = Quaternion.Euler(0f, 180f, 0f);
+                }
+                else
+                {
+                    _direction = -1;
+                    _spriteTransform.rotation = Quaternion.Euler(0f, 0f, 0f);
+                }
+                break;
         }
     }
 
@@ -149,12 +263,14 @@ public class EnemyBehaviour : MonoBehaviour
     {
         if (transform.position.x >= _maxXPosition || transform.position.x <= _minXPosition)
         {
-            if(_type == EnemyType.Default)
-                _direction *= -1;
-            else
+            if(_type == EnemyType.Zigzag)
             {
                 _direction *= -1;
                 RotateEnemy();
+            }               
+            else
+            {
+                _direction *= -1;
             }
         }
     }
@@ -166,13 +282,35 @@ public class EnemyBehaviour : MonoBehaviour
             float randomXPosition = Random.Range(_minXPosition, _maxXPosition);
             _newPosition.Set(randomXPosition, _maxYPosition, 0);
             transform.position = _newPosition;
+            DetermineIfPowerupInfront();
+            if (_type == EnemyType.Smart)
+                RotateEnemy();
         }
+    }
+
+    private bool IsPlayerNearby()
+    {
+        float detectionRadius = 3f;
+        LayerMask playerLayer = LayerMask.GetMask("Player");
+
+        if(Physics2D.OverlapCircle(transform.position, detectionRadius, playerLayer) != null)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public void IncreaseSpeed(float multiplier)
     {
         _enemySpeed *= multiplier;
         _enemySpeed = Mathf.Clamp(_enemySpeed, 4f, 8f);
+    }
+
+    private void SetShieldState(bool active)
+    {
+        _shieldPrefab.SetActive(active);
+        _isShieldActive = active;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -194,6 +332,12 @@ public class EnemyBehaviour : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        if (_isShieldActive)
+        {
+            SetShieldState(false);
+            return;
+        }
+
         _health-= damage;
         if (_health <= 0)
         {

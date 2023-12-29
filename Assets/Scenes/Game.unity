@@ -577,13 +577,14 @@ MonoBehaviour:
   _enemiesPrefab:
   - {fileID: 6931240517602121938, guid: 096d86c1b24a4854aba439c487199713, type: 3}
   - {fileID: 1721428359315191643, guid: e06da1a7c83dcae45829280eaffcef32, type: 3}
+  - {fileID: 4780236206435056188, guid: 41efa22a7d0e9ab48bab6944021e2242, type: 3}
+  - {fileID: 6482393035770926581, guid: f40136ebe20faa4408bb661d8c9d134c, type: 3}
   _powerups:
   - {fileID: 8369771424636927652, guid: c9ff5c03fe271b448b8630722fa04c11, type: 3}
   - {fileID: 2244486223600273265, guid: facc2616466389d46a5eeffcd7e691b9, type: 3}
   - {fileID: 20760201900244790, guid: 203407340e3fdf843aa66fd958b949fc, type: 3}
   - {fileID: 8921440365036221145, guid: ddd422fefd8626f40a19280b9bcdd8a6, type: 3}
   - {fileID: 6967923976261390982, guid: 5ce07e11a31de864e848123c88c7b11c, type: 3}
-  _utilitiesPowerups:
   - {fileID: 3742831641679763124, guid: cfe5c01a3559ccb4c9ea705ae8d63926, type: 3}
   - {fileID: 4512795309537123638, guid: 990624aa463f2dc4a9e00d36540834e6, type: 3}
   _enemyContainer: {fileID: 972751939}
@@ -2294,6 +2295,10 @@ PrefabInstance:
     - target: {fileID: 4995967241934954204, guid: 09b89daeea401354281098b16f5c2668, type: 3}
       propertyPath: m_Name
       value: Asteroid
+      objectReference: {fileID: 0}
+    - target: {fileID: 4995967241934954204, guid: 09b89daeea401354281098b16f5c2668, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 09b89daeea401354281098b16f5c2668, type: 3}

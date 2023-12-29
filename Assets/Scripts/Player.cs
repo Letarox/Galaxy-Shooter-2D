@@ -33,6 +33,7 @@ public class Player : MonoBehaviour
     private bool _isInvulnerable = false;
     private bool _isThrusterActive = false;
     private bool _isPlayerSlowed = false;
+    private SpriteRenderer _spriteRenderer;
 
     private void Start()
     {
@@ -62,6 +63,11 @@ public class Player : MonoBehaviour
             }
         }
 
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            CollectAllPowerups();
+        }
+
         if (Input.GetKey(KeyCode.LeftShift) && !_isPlayerSlowed && _powerUpSpeedMultiplier == 1f && UIManager.Instance.CanUseThrusterBoost())
         {
             _isThrusterActive = true;
@@ -74,6 +80,15 @@ public class Player : MonoBehaviour
             if (_powerUpSpeedMultiplier == 1f)
                 _thruster.SetActive(false);
             _ = StartCoroutine(UIManager.Instance.ThrusterBoostSliderUpRoutine());
+        }
+    }
+
+    private void CollectAllPowerups()
+    {
+        PowerUp[] powerups = SpawnManager.Instance.transform.GetChild(1).GetComponentsInChildren<PowerUp>();
+        foreach (PowerUp powerup in powerups)
+        {
+            powerup.ActivateBeingCollected();
         }
     }
 
@@ -177,7 +192,7 @@ public class Player : MonoBehaviour
         }
 
         strength = Mathf.Clamp(strength, 0, 3);
-        _shield.GetComponent<SpriteRenderer>().color = _shieldColors[strength - 1];
+        _spriteRenderer.color = _shieldColors[strength - 1];
     }
 
     public void ActivateTripleShotPowerUp(float duration)
@@ -199,8 +214,14 @@ public class Player : MonoBehaviour
     public void ActivateShieldPowerUp()
     {
         _shieldStrength = 3;
-        SetShieldState(_shieldStrength);
         _shield.SetActive(true);
+        if (_spriteRenderer == null)
+        {
+            _spriteRenderer = _shield.GetComponent<SpriteRenderer>();
+            if (_spriteRenderer == null)
+                Debug.LogError("Sprite Renderer is NULL on the Player");
+        }
+        SetShieldState(_shieldStrength);
     }
 
     public void GrantBonusAmmo()
@@ -279,6 +300,7 @@ public class Player : MonoBehaviour
         if (_shieldStrength > 0)
         {
             _shieldStrength--;
+            _ = StartCoroutine(InvulnerabilityRoutine());
             SetShieldState(_shieldStrength);
             return;
         }
