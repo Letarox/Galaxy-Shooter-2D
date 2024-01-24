@@ -424,6 +424,7 @@ MonoBehaviour:
   _thrusterSpeedMultipler: 1.5
   _laserPrefab: {fileID: 1866442970610771091, guid: 1c9d3ce93c088304f849a7d658f8e756, type: 3}
   _tripleShotPrefab: {fileID: 41005034691857671, guid: 54807849e5c7ccb4693a242b4c18f2f7, type: 3}
+  _homingMissilePrefab: {fileID: 1569624658905079478, guid: 122312e9923c4bc4380c259cc523cbf3, type: 3}
   _shield: {fileID: 338992355}
   _thruster: {fileID: 72565190}
   _wings:
@@ -431,13 +432,13 @@ MonoBehaviour:
   - {fileID: 7093420705161408662}
   _playerLives: 3
   _fireDelay: 0.25
-  _isTripleShotOn: 0
   _laserSoundClip: {fileID: 8300000, guid: 75676f361bdfeaf41a46623e95df3dbc, type: 3}
   _shieldColors:
   - {r: 0.99215686, g: 0.08627451, b: 0, a: 1}
   - {r: 0.5647059, g: 1, b: 0.41960785, a: 1}
   - {r: 1, g: 1, b: 1, a: 1}
   _cameraShake: {fileID: 0}
+  _isHomingActive: 0
 --- !u!61 &208357297760953851
 BoxCollider2D:
   m_ObjectHideFlags: 0

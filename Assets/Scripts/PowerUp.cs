@@ -12,7 +12,8 @@ public class PowerUp : MonoBehaviour
         Ammo,
         Life,
         Special,
-        Slow
+        Slow,
+        Homing
     }
 
     [SerializeField] private float _powerUpSpeed = 3f;
@@ -96,6 +97,9 @@ public class PowerUp : MonoBehaviour
                 break;
             case PowerUpType.Slow:
                 player.ActivateSlowPowerUp(_duration);
+                break;
+            case PowerUpType.Homing:
+                player.ActivateHomingMissilePowerUp(_duration);
                 break;
             default:
                 break;

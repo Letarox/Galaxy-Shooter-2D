@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\PowerUp.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\LaserBehaviour.cs" />
+    <Compile Include="Assets\Scripts\BossBehaviour.cs" />
     <Compile Include="Assets\Scripts\MonoSingleton.cs" />
     <Compile Include="Assets\Scripts\Main_Menu\MainMenu.cs" />
   </ItemGroup>

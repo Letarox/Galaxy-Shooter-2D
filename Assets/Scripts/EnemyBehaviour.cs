@@ -9,7 +9,8 @@ public class EnemyBehaviour : MonoBehaviour
         Default,
         Zigzag,
         Aggressive,
-        Smart
+        Smart,
+        Evasive
     }
 
     [SerializeField] private float _enemySpeed = 4f;
@@ -34,6 +35,7 @@ public class EnemyBehaviour : MonoBehaviour
     private float _canFire = -1f;
     private float _canFireAtPowerup = -1f;
     private float _fireRate = 3f;
+    private float _avoidDistance = 3.0f;
     private int _direction = 1;
     private bool isMovingSideways = false;
     private bool _isShieldActive = false;
@@ -129,9 +131,7 @@ public class EnemyBehaviour : MonoBehaviour
             float verticalAlignment = Mathf.Abs(toPowerup.x) / Mathf.Abs(toPowerup.y);
 
             if (Mathf.Abs(angle) < alignmentThreshold && verticalAlignment < 1f && _canFireAtPowerup <= Time.time)
-            {
                 FireLaser(false);
-            }
         }
     }
     private void FireLaser(bool fireAtPlayer)
@@ -192,9 +192,32 @@ public class EnemyBehaviour : MonoBehaviour
             case EnemyType.Smart:
                 transform.Translate(_enemySpeed * Time.deltaTime * Vector3.down);
                 break;
+            case EnemyType.Evasive:
+                Vector2 _enemyMoveDirection = Vector2.down;
+                bool _foundLaser = false;
+                LaserBehaviour[] _trackLasers = SpawnManager.Instance.PlayerLaserContainer.GetComponentsInChildren<LaserBehaviour>();
+
+                for (int i = 0; i < _trackLasers.Length; i++)
+                {
+                    if (_trackLasers[i] != null && _trackLasers[i].gameObject != null && _trackLasers[i].gameObject.activeSelf)
+                    {
+                        Vector2 _directionToLaser = _trackLasers[i].transform.position - transform.position;
+
+                        if (Mathf.Abs(_directionToLaser.magnitude) < _avoidDistance)
+                        {
+                            _enemyMoveDirection = -_directionToLaser;
+                            _foundLaser = true;
+                        }
+                    }
+                }
+                if(_foundLaser)
+                    transform.Translate(_enemySpeed / 2f * Time.deltaTime * _enemyMoveDirection);
+                else
+                    transform.Translate(_enemySpeed * Time.deltaTime * _enemyMoveDirection);
+                break;
             default:
                 break;
-        }        
+        }
 
         TeleportNewPosition();
     }
@@ -325,7 +348,10 @@ public class EnemyBehaviour : MonoBehaviour
         else if (other.CompareTag("Player"))
         {
             if (_player != null)
+            {
+                _player.AddScorePoints(Random.Range(5, 13));
                 _player.TakeDamage();
+            }
             TakeDamage(100);
         }
     }

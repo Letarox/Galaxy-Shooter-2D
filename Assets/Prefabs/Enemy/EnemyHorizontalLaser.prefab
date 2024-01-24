@@ -50,7 +50,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _laserSpeed: 10
   _isPlayerLaser: 0
-  _isHorizontalLaser: 1
+  _type: 1
 --- !u!50 &1548538217554774003
 Rigidbody2D:
   serializedVersion: 4

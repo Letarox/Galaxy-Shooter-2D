@@ -7,6 +7,8 @@ public class GameManager : MonoSingleton<GameManager>
 {
     private bool _isGameOver = false;
 
+    public bool IsGameOver => _isGameOver;
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.R) && _isGameOver)

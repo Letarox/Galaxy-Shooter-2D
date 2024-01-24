@@ -7,12 +7,11 @@ public class Player : MonoBehaviour
     [SerializeField] private float _playerSpeed = 5f;
     [SerializeField] private float _powerUpSpeedMultiplier = 1f;
     [SerializeField] private float _thrusterSpeedMultipler = 1.5f;
-    [SerializeField] private GameObject _laserPrefab, _tripleShotPrefab;
+    [SerializeField] private GameObject _laserPrefab, _tripleShotPrefab, _homingMissilePrefab;
     [SerializeField] private GameObject _shield, _thruster;
     [SerializeField] private GameObject[] _wings;
     [SerializeField] private int _playerLives = 3;
     [SerializeField] private float _fireDelay = 0.25f;
-    [SerializeField] private bool _isTripleShotOn = false;
     [SerializeField] private AudioClip _laserSoundClip;
     [SerializeField] private Color[] _shieldColors;
     [SerializeField] private CameraShake _cameraShake;
@@ -25,14 +24,16 @@ public class Player : MonoBehaviour
     private readonly WaitForSeconds _invulnerabilityDelay = new(1f);
     private Vector3 _direction, _limitY, _teleportPositionX, _laserOffset;
     private float _canFire = -1f;
-    private Coroutine _tripleShotRoutine, _speedRoutine, _slowRoutine;
+    private Coroutine _tripleShotRoutine, _speedRoutine, _slowRoutine, _homingMissileRoutine;
     private int _score;
     private int _shieldStrength;
     private int _ammoCount = 15;
     private AudioSource _audioSource;
+    private bool _isTripleShotOn = false;
     private bool _isInvulnerable = false;
     private bool _isThrusterActive = false;
     private bool _isPlayerSlowed = false;
+    private bool _isHomingActive = false;
     private SpriteRenderer _spriteRenderer;
 
     private void Start()
@@ -59,7 +60,10 @@ public class Player : MonoBehaviour
             {
                 _ammoCount--;
                 UIManager.Instance.UpdateAmmoAmount(_ammoCount);
-                FireLaser();
+                if (_isHomingActive)
+                    FireHomingMissile();
+                else
+                    FireLaser();
             }
         }
 
@@ -97,15 +101,23 @@ public class Player : MonoBehaviour
         _canFire = Time.time + _fireDelay;
         if (_isTripleShotOn)
         {
-            _ = Instantiate(_tripleShotPrefab, transform.position, Quaternion.identity);
+            _laserOffset.Set(transform.position.x, transform.position.y, 0);
+            _ = Instantiate(_tripleShotPrefab, transform.position, Quaternion.identity, SpawnManager.Instance.PlayerLaserContainer.transform);
         }
         else
         {
             _laserOffset.Set(transform.position.x, transform.position.y + _laserOffsetY, 0);
-            _ = Instantiate(_laserPrefab, _laserOffset, Quaternion.identity);
+            _ = Instantiate(_laserPrefab, _laserOffset, Quaternion.identity, SpawnManager.Instance.PlayerLaserContainer.transform);
         }
 
         _audioSource.Play();
+    }
+
+    private void FireHomingMissile()
+    {
+        _canFire = Time.time + _fireDelay;
+        _laserOffset.Set(transform.position.x, transform.position.y + _laserOffsetY, 0);
+        _ = Instantiate(_homingMissilePrefab, transform.position, Quaternion.identity, SpawnManager.Instance.PlayerLaserContainer.transform);
     }
 
     private void MovePlayer(Vector3 direction)
@@ -181,6 +193,14 @@ public class Player : MonoBehaviour
         if (_powerUpSpeedMultiplier > 1f)
             _thruster.SetActive(true);
         _isPlayerSlowed = false;
+    }
+
+    private IEnumerator EnableHomingMissileRoutine(float duration)
+    {
+        _isHomingActive = true;
+        yield return new WaitForSeconds(duration);
+        _isHomingActive = false;
+        _homingMissileRoutine = null;
     }
 
     private void SetShieldState(int strength)
@@ -262,6 +282,14 @@ public class Player : MonoBehaviour
         _slowRoutine = StartCoroutine(EnableSlowRoutine(duration));
     }
 
+    public void ActivateHomingMissilePowerUp(float duration)
+    {
+        if (_homingMissileRoutine != null)
+            StopCoroutine(_homingMissileRoutine);
+
+        _homingMissileRoutine = StartCoroutine(EnableHomingMissileRoutine(duration));
+    }
+
     public void AddScorePoints(int value)
     {
         _score += value;
@@ -332,10 +360,5 @@ public class Player : MonoBehaviour
             TakeDamage();
             Destroy(other.gameObject);
         }
-    }
-
-    public int GetPlayerLives()
-    {
-        return _playerLives;
     }
 }

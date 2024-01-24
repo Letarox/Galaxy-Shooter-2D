@@ -101,6 +101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _laserSpeed: 10
   _isPlayerLaser: 1
+  _isHorizontalLaser: 0
 --- !u!61 &1866442970610771117
 BoxCollider2D:
   m_ObjectHideFlags: 0

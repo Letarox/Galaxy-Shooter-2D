@@ -4,14 +4,16 @@ using UnityEngine;
 
 public class SpawnManager : MonoSingleton<SpawnManager>
 {
-    [SerializeField] private GameObject[] _enemiesPrefab;
+    [SerializeField] private GameObject _bossPrefab;
+    [SerializeField] private GameObject[] _enemiesPrefab;    
     [SerializeField] private GameObject[] _powerups;
-    [SerializeField] private GameObject _enemyContainer, _powerUpContainer;
-    private readonly WaitForSeconds _powerupSpawnDelay = new(6f);    
+    [SerializeField] private GameObject _enemyContainer, _powerUpContainer, _playerLaserContainer, _enemyLaserContainer;
+    private readonly WaitForSeconds _powerupSpawnDelay = new(6f);
+    private readonly Vector3 _bossSpawnPosition = new(0f, 9f, 0f);
     private readonly float _maxXPosition = 9.2f;
     private readonly float _minXPosition = -9.2f;
     private readonly float _spawnPositionY = 7.35f;
-    private Vector3 _enemySpawnPosition, _powerUpSpawnPosition, _utilityPowerUpSpawnPosition;
+    private Vector3 _enemySpawnPosition, _powerUpSpawnPosition;
     private bool _isPlayerAlive = false;
     private Player _player;
     private int _currentWave = 1;
@@ -21,6 +23,9 @@ public class SpawnManager : MonoSingleton<SpawnManager>
     private float _spawnIntervalDecreasePercentage = 10f;
     private List<GameObject> _activeEnemies = new();
     private int _weightedTotal;
+
+    public GameObject PlayerLaserContainer => _playerLaserContainer;
+    public List<GameObject> ActiveEnemies => _activeEnemies;
 
     private void Start()
     {
@@ -43,26 +48,35 @@ public class SpawnManager : MonoSingleton<SpawnManager>
     private IEnumerator EnemySpawnRoutine()
     {
         yield return UIManager.Instance.NextWaveSpawnRoutine(_currentWave);
-        while (!_isPlayerAlive)
+        while (!_isPlayerAlive && !GameManager.Instance.IsGameOver)
         {
-            for (int i = 0; i < _enemiesPerWave; i++)
+            if(_currentWave == 5 && _activeEnemies.Count == 0)
             {
-                SpawnEnemy();
-                yield return new WaitForSeconds(_spawnInterval);
-            }
+                SpawnBoss();
 
-            while (_activeEnemies.Count > 0)
+
+            }
+            else
             {
-                yield return null;
+                for (int i = 0; i < _enemiesPerWave; i++)
+                {
+                    SpawnEnemy();
+                    yield return new WaitForSeconds(_spawnInterval);
+                }
+
+                while (_activeEnemies.Count > 0)
+                {
+                    yield return null;
+                }
+
+                _currentWave++;
+                _enemiesPerWave += 2;
+                _spawnInterval *= 1.0f - (_spawnIntervalDecreasePercentage / 100.0f);
+                _enemySpeedMultiplier += 0.05f;
+
+                UIManager.Instance.UpdateWaveText(_currentWave);
+                yield return UIManager.Instance.NextWaveSpawnRoutine(_currentWave);
             }
-
-            _currentWave++;
-            _enemiesPerWave += 2;
-            _spawnInterval *= 1.0f - (_spawnIntervalDecreasePercentage / 100.0f);
-            _enemySpeedMultiplier += 0.05f;
-
-            UIManager.Instance.UpdateWaveText(_currentWave);
-            yield return UIManager.Instance.NextWaveSpawnRoutine(_currentWave);
         }
     }
 
@@ -72,9 +86,11 @@ public class SpawnManager : MonoSingleton<SpawnManager>
 
         int[] enemyTable =
         {
-            45, // Default Enemy
-            30, // Zigzag Enemy
-            25  // Aggressive Enemy
+            25, // Default Enemy
+            25, // Zigzag Enemy
+            15, // Aggressive Enemy
+            15, // Smart Enemy
+            15, // Evasive Enemy
         };
 
         foreach (var enemy in enemyTable)
@@ -107,7 +123,8 @@ public class SpawnManager : MonoSingleton<SpawnManager>
             5,  //Special
             10, //Slow
             60, //Ammo
-            5   //Life
+            5,  //Life
+            10  //Homing
         };
 
         foreach (var powerup in powerupTable)
@@ -126,6 +143,15 @@ public class SpawnManager : MonoSingleton<SpawnManager>
         }
 
         return _powerups[0];
+    }
+
+    private void SpawnBoss()
+    {
+        GameObject boss = Instantiate(_bossPrefab, _bossSpawnPosition, Quaternion.identity, _enemyContainer.transform);
+        _activeEnemies.Add(boss);
+        BossBehaviour bossBehaviour = boss.GetComponent<BossBehaviour>();
+        if (bossBehaviour != null)
+            bossBehaviour.SetPlayer(_player);
     }
 
     private void SpawnEnemy()
@@ -147,7 +173,7 @@ public class SpawnManager : MonoSingleton<SpawnManager>
     private IEnumerator SpawnPowerUpRoutine()
     {
         yield return _powerupSpawnDelay;
-        while (!_isPlayerAlive)
+        while (!_isPlayerAlive && !GameManager.Instance.IsGameOver)
         {
             float randomPositionX = Random.Range(_minXPosition, _maxXPosition);
             _powerUpSpawnPosition.Set(randomPositionX, _spawnPositionY, 0f);
