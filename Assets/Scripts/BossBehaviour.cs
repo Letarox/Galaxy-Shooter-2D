@@ -39,7 +39,7 @@ public class BossBehaviour : MonoBehaviour
             CalculateMovement();
         else
         {
-            transform.Translate(_speed / 2f * Time.deltaTime * Vector3.down);
+            transform.Translate(_speed / 3f * Time.deltaTime * Vector3.down);
             if (transform.position.y <= _maxYPosition)
             {
                 _readyForCombat = true;
@@ -157,6 +157,7 @@ public class BossBehaviour : MonoBehaviour
         if (_health <= 0)
         {
             _ = Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
+            SpawnManager.Instance.DestroyEnemy(gameObject);
             Destroy(this);
         }
     }

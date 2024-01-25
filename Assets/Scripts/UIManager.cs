@@ -6,11 +6,11 @@ using UnityEngine.UI;
 
 public class UIManager : MonoSingleton<UIManager>
 {
-    [SerializeField] private TextMeshProUGUI _scoreText, _gameOverText, _restartGameText, _ammoText, _waveSpawnText, _waveNumberText;
+    [SerializeField] private TextMeshProUGUI _scoreText, _gameOverText, _restartGameText, _ammoText, _waveSpawnText, _waveNumberText, _victoryText;
     [SerializeField] private Image _livesImage;
     [SerializeField] private Sprite[] _livesSprites;
     [SerializeField] private Slider _boostSlider;
-    private readonly WaitForSeconds _flickerDelay = new(0.25f);
+    private readonly WaitForSeconds _flickerDelay = new(0.17f);
     private readonly WaitForSeconds _boostDelay = new(0.05f);
     private readonly WaitForSeconds _waveDelay = new(1f);
     private readonly WaitForSeconds _nowDelay = new(0.5f);
@@ -72,6 +72,24 @@ public class UIManager : MonoSingleton<UIManager>
             _gameOverText.text = "GAME OVER";
             yield return _flickerDelay;
             _gameOverText.text = "";
+            yield return _flickerDelay;
+        }
+    }
+
+    public void ActivateVictory()
+    {
+        _victoryText.gameObject.SetActive(true);
+        _restartGameText.gameObject.SetActive(true);
+        _ = StartCoroutine(VictoryFlickerRoutine());
+    }
+
+    private IEnumerator VictoryFlickerRoutine()    
+    {
+        while (true)
+        {
+            _victoryText.text = "YOU WON !";
+            yield return _flickerDelay;
+            _victoryText.text = "";
             yield return _flickerDelay;
         }
     }

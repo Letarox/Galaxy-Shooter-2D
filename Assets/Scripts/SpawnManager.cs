@@ -48,13 +48,19 @@ public class SpawnManager : MonoSingleton<SpawnManager>
     private IEnumerator EnemySpawnRoutine()
     {
         yield return UIManager.Instance.NextWaveSpawnRoutine(_currentWave);
-        while (!_isPlayerAlive && !GameManager.Instance.IsGameOver)
+        while (!_isPlayerAlive && (!GameManager.Instance.IsGameOver || !GameManager.Instance.PlayerWon))
         {
             if(_currentWave == 5 && _activeEnemies.Count == 0)
             {
                 SpawnBoss();
 
+                while (_activeEnemies.Count > 0)
+                {
+                    yield return null;
+                }
 
+                GameManager.Instance.Victory();
+                break;
             }
             else
             {
@@ -173,7 +179,7 @@ public class SpawnManager : MonoSingleton<SpawnManager>
     private IEnumerator SpawnPowerUpRoutine()
     {
         yield return _powerupSpawnDelay;
-        while (!_isPlayerAlive && !GameManager.Instance.IsGameOver)
+        while (!_isPlayerAlive && (!GameManager.Instance.IsGameOver || !GameManager.Instance.PlayerWon))
         {
             float randomPositionX = Random.Range(_minXPosition, _maxXPosition);
             _powerUpSpawnPosition.Set(randomPositionX, _spawnPositionY, 0f);
